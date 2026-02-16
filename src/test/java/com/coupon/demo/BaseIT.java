@@ -1,6 +1,6 @@
 package com.coupon.demo;
 
-import com.coupon.demo.repository.CouponRepository;
+import com.coupon.demo.infrastructure.persistence.CouponRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;

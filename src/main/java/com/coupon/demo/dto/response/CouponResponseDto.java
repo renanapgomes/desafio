@@ -1,7 +1,6 @@
 package com.coupon.demo.dto.response;
 
-import com.coupon.demo.enums.CouponEnum;
-import jakarta.validation.constraints.AssertFalse;
+import com.coupon.demo.domain.CouponStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,9 +28,8 @@ public class CouponResponseDto {
     private String expirationDate;
 
     @NotNull(message = "O status é obrigatório")
-    private CouponEnum status;
+    private CouponStatus status;
 
-    @AssertFalse
     private boolean published;
-
 }
+

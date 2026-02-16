@@ -2,7 +2,7 @@ package com.coupon.demo.controller;
 
 import com.coupon.demo.BaseIT;
 import com.coupon.demo.dto.request.CouponRequestDto;
-import com.coupon.demo.enums.CouponEnum;
+import com.coupon.demo.domain.CouponStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -49,6 +49,32 @@ class CouponJourneyIT extends BaseIT {
                 .andExpect(jsonPath("$.status").value("DELETED"));
 
         var cupomFinal = couponRepository.findById(java.util.UUID.fromString(createdId)).get();
-        assertEquals(CouponEnum.DELETED, cupomFinal.getStatus());
+        assertEquals(CouponStatus.DELETED, cupomFinal.getStatus());
+    }
+
+    @Test
+    @DisplayName("Não deve permitir deletar o mesmo cupom duas vezes (regra de negócio)")
+    void naoDeveDeletarCupomDuasVezes() throws Exception {
+        CouponRequestDto request = new CouponRequestDto();
+        request.setCode("DUPLO1");
+        request.setDescription("Cupom para testar delete duplo");
+        request.setDiscountValue(5.0);
+        request.setExpirationDate(LocalDate.now().plusDays(10).toString());
+        request.setPublished(false);
+
+        String responseJson = mockMvc.perform(post("/coupon")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String createdId = objectMapper.readTree(responseJson).get("id").asText();
+
+        mockMvc.perform(delete("/coupon/" + createdId))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(delete("/coupon/" + createdId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Não é possível deletar um cupom que já está deletado."));
     }
 }
